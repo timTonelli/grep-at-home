@@ -10,9 +10,13 @@ struct Cli {
     path: std::path::PathBuf,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[derive(Debug)]
+struct GahError(String);
+
+fn main() -> Result<(), GahError> {
     let args = Cli::parse();
-    let content = std::fs::read_to_string(&args.path)?;
+    let content = std::fs::read_to_string(&args.path)
+        .map_err(|e| GahError(format!("Error reading `{:?}`: {}", &args.path, e)))?;
 
     for line in content.lines() {
         if line.contains(&args.pattern) {
