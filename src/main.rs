@@ -17,15 +17,12 @@ struct Cli {
 #[derive(Debug)]
 struct GahError(String);
 
-fn match_from_buffer<T: BufRead>(needle: &str, haystack: T) -> Vec<String> {
-    let mut v = Vec::new();
-    for line in haystack.lines() {
-        let l = line.unwrap();
-        if l.contains(needle) {
-            v.push(l);
-        }
-    }
-    return v;
+fn match_from_reader<T: BufRead>(needle: &str, haystack: T) -> Vec<String> {
+    haystack
+        .lines()
+        .map(|l| l.unwrap())
+        .filter(|l| l.contains(needle))
+        .collect()
 }
 
 /*
@@ -36,11 +33,11 @@ fn main() -> Result<(), GahError> {
     let args = Cli::parse();
     let matches;
     if args.filepath == std::path::PathBuf::from("-") {
-        let input = BufReader::new(stdin().lock());
-        matches = match_from_buffer(&args.pattern, input);
+        let stdin_reader = BufReader::new(stdin().lock());
+        matches = match_from_reader(&args.pattern, stdin_reader);
     } else {
-        let file = BufReader::new(File::open(&args.filepath).unwrap());
-        matches = match_from_buffer(&args.pattern, file);
+        let file_reader = BufReader::new(File::open(&args.filepath).unwrap());
+        matches = match_from_reader(&args.pattern, file_reader);
     }
 
     println!("{}", matches.join("\n"));
