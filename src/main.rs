@@ -35,7 +35,9 @@ fn main() -> Result<(), GahError> {
     let input: Box<dyn Read> = if args.filepath == PathBuf::from("-") {
         Box::new(stdin().lock())
     } else {
-        Box::new(File::open(&args.filepath).unwrap())
+        let file = File::open(&args.filepath)
+            .map_err(|e| GahError(format!("Error opening `{:?}`: {}", &args.filepath, e)))?;
+        Box::new(file)
     };
     let matches = match_from_reader(&args.pattern, BufReader::new(input));
 
