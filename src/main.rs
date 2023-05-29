@@ -2,7 +2,6 @@ use clap::Parser;
 use std::{
     fs::File,
     io::{stdin, BufRead, BufReader, Read},
-    path::PathBuf,
 };
 
 /// Search for a pattern in a filepath, and display lines that contain it
@@ -12,7 +11,7 @@ struct Cli {
     pattern: String,
 
     /// Path of where to search for the pattern
-    filepath: std::path::PathBuf,
+    filepath: Option<std::path::PathBuf>,
 }
 
 #[derive(Debug)]
@@ -32,12 +31,12 @@ fn match_from_reader<T: BufRead>(needle: &str, haystack: T) -> Vec<String> {
 */
 fn main() -> Result<(), GahError> {
     let args = Cli::parse();
-    let input: Box<dyn Read> = if args.filepath == PathBuf::from("-") {
-        Box::new(stdin().lock())
-    } else {
-        let file = File::open(&args.filepath)
+    let input: Box<dyn Read> = if let Some(path) = &args.filepath {
+        let file = File::open(&path)
             .map_err(|e| GahError(format!("Error opening `{:?}`: {}", &args.filepath, e)))?;
         Box::new(file)
+    } else {
+        Box::new(stdin().lock())
     };
     let matches = match_from_reader(&args.pattern, BufReader::new(input));
 
