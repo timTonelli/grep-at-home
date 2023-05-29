@@ -4,11 +4,9 @@ use clap::Parser;
 #[derive(Parser)]
 struct Cli {
     /// Pattern to look for
-    #[arg(long)]
     pattern: String,
 
     /// Path of where to search for the pattern
-    #[arg(long)]
     path: std::path::PathBuf,
 }
 
@@ -25,5 +23,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{}", line);
         }
     }
+
     Ok(())
 }
