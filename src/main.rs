@@ -16,11 +16,13 @@ struct Cli {
 }
 
 fn print_matches<R: BufRead>(needle: &str, haystack: R, mut writer: StdoutLock) -> io::Result<()> {
-    haystack
+    for line in haystack
         .lines()
-        .map(|l| l.unwrap())
+        .filter_map(|l| l.ok())
         .filter(|l| l.contains(needle))
-        .for_each(|l| writeln!(writer, "{}", l.trim()).unwrap());
+    {
+        writeln!(writer, "{}", line.trim())?;
+    }
     writer.flush()?;
     Ok(())
 }
