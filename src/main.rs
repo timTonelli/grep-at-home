@@ -19,7 +19,7 @@ fn print_matches<R: BufRead>(needle: &str, haystack: R, mut writer: StdoutLock) 
     haystack
         .lines()
         .filter_map(|l| l.ok())
-        .filter(|l| l.contains(needle))
+        .filter(|l| l.to_lowercase().contains(&needle.to_lowercase()))
         .try_for_each(|l| writeln!(writer, "{}", l.trim()))?;
     writer.flush()?;
     Ok(())
